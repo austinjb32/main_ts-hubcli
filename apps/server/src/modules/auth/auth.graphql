@@ -1,0 +1,75 @@
+type Auth @key(fields: "_id") {
+  _id: ID!
+  createdAt: DateTime
+  updatedAt: DateTime
+  token: String
+  refreshToken: String
+  userId: String
+}
+
+input CreateAuthInput {
+  token: String!
+  refreshToken: String!
+  userId: String!
+}
+
+input UpdateAuthInput {
+  _id: ID!
+  token: String
+  refreshToken: String
+  userId: String
+}
+
+extend type Query {
+  getAuthById(_id: ID!): Auth
+    @isMHAdmin
+    @cacheSet(type: "getAuthById", identifier: "_id")
+  getAllAuth(
+    search: String
+    filter: JSON
+    sort: JSON
+    limit: Int
+    offset: Int
+  ): [Auth]! @isMHAdmin @cacheSet(type: "getAllAuths", identifier: "_id")
+  getOneAuth(filter: JSON, sort: JSON): Auth
+    @isMHAdmin
+    @cacheSet(type: "getAuth", identifier: "_id")
+  getAllAuthCount(search: String, filter: JSON): Int! @isMHAdmin
+}
+
+extend type Mutation {
+  createAuth(data: CreateAuthInput!): Auth!
+    @isMHAdmin
+    @cachePurge(payloads: [{ types: ["getAuth", "getAllAuths"] }])
+  createManyAuth(datas: [CreateAuthInput!]!): [Auth!]!
+    @isMHAdmin
+    @cachePurge(payloads: [{ types: ["getAuth", "getAllAuths"] }])
+  updateAuth(data: UpdateAuthInput!): Auth!
+    @isMHAdmin
+    @cachePurge(
+      payloads: [
+        { types: ["getAuth", "getAllAuths", "getAuthById"], identifier: "_id" }
+      ]
+    )
+  updateManyAuth(datas: [UpdateAuthInput!]!): [Auth!]!
+    @isMHAdmin
+    @cachePurge(
+      payloads: [
+        { types: ["getAuth", "getAllAuths", "getAuthById"], identifier: "_id" }
+      ]
+    )
+  deleteAuth(_id: ID!): Auth!
+    @isMHAdmin
+    @cachePurge(
+      payloads: [
+        { types: ["getAuth", "getAllAuths", "getAuthById"], identifier: "_id" }
+      ]
+    )
+  deleteManyAuth(filter: JSON!): [Auth!]!
+    @isMHAdmin
+    @cachePurge(
+      payloads: [
+        { types: ["getAuth", "getAllAuths", "getAuthById"], identifier: "_id" }
+      ]
+    )
+}

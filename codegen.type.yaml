@@ -1,0 +1,18 @@
+overwrite: true
+generates:
+  ./apps/server/src/libs/types/generated/base-types.ts:
+    schema: ./apps/server/src/modules/**/*.graphql
+    plugins:
+      - typescript
+      - typescript-resolvers
+    config:
+      useIndexSignature: true
+      federation: true
+      wrapFieldDefinitions: true
+      contextType: ../index#ServerContext
+      scalars:
+        DateTime: Date
+        EmailAddress: string
+      mappers:
+        User: ../../../modules/user/user.model#IUserDocument
+        Auth: ../../../modules/auth/auth.model#IAuthDocument
