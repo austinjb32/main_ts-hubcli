@@ -1,5 +1,5 @@
 import { Document, Model, Schema, model, Types } from "mongoose";
-import isEmail from "validator/lib/isEmail";
+import isEmail from "validator/es/lib/isEmail";
 type IUser = {
   name: string;
   email: string;

@@ -27,6 +27,6 @@ export default {
   },
   User: {
     __resolveReference: async (ref, context, info) =>
-      ref._id ? context.loaders.userByIdLoader.load(ref._id) : null,
+      ref._id ? context.loaders.userLoader.load(ref._id) : null,
   },
 } as Resolvers;

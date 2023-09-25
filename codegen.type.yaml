@@ -16,3 +16,4 @@ generates:
       mappers:
         User: ../../../modules/user/user.model#IUserDocument
         Auth: ../../../modules/auth/auth.model#IAuthDocument
+        Post: ../../../modules/post/post.model#IPostDocument

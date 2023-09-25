@@ -9,6 +9,10 @@ type User @key(fields: "_id") {
   status: String
   imageUrl: String
   isAdmin: Boolean
+  Posts:[Post]
+  followers: Int
+  following: Int
+  lastActivity: String
 }
 
 input CreateUserInput {

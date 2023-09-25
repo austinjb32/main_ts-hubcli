@@ -3,17 +3,19 @@ import { GraphQLError } from "graphql";
 import { get, omit, set, size, map, isEmpty } from "lodash";
 import { PipelineStage } from "mongoose";
 import {
-  CreateAuthInput,
-  QueryGetAllAuthArgs,
-  QueryGetOneAuthArgs,
-  QueryGetAllAuthCountArgs,
+  CreatePostInput,
+  QueryGetAllPostArgs,
+  QueryGetOnePostArgs,
+  MutationDeleteManyPostArgs,
+  QueryGetAllPostCountArgs,
+  UpdatePostInput,
 } from "../../libs/types";
-import { AuthModel } from "./auth.model";
+import { PostModel } from "./post.model";
 
-export default class AuthDataSource {
-  private readonly model = AuthModel;
+export default class PostDataSource {
+  private readonly model = PostModel;
 
-  async getAllAuth(args: QueryGetAllAuthArgs) {
+  async getAllPost(args: QueryGetAllPostArgs) {
     const pipelines: PipelineStage[] = [];
     const limit = Number(args.limit) || 10;
     const offset = Number(args.offset) || 0;
@@ -41,7 +43,7 @@ export default class AuthDataSource {
     return this.model.aggregate(pipelines);
   }
 
-  async getAllAuthCount(args: QueryGetAllAuthCountArgs) {
+  async getAllPostCount(args: QueryGetAllPostCountArgs) {
     const pipelines: PipelineStage[] = [];
 
     if (size(args.search?.trim()) > 2) {
@@ -64,24 +66,51 @@ export default class AuthDataSource {
     return (await this.model.aggregate(pipelines))[0]?.totalCount || 0;
   }
 
-  async getAuthById(_id: string) {
+  async getPostById(_id: string) {
     return this.model.findById(_id).lean();
   }
 
-  async getOneAuth(args: QueryGetOneAuthArgs) {
+  async getOnePost(args: QueryGetOnePostArgs) {
     return this.model.findOne(args.filter).sort(args.sort).lean();
   }
 
-  async createAuth(data: CreateAuthInput) {
-    const auth = new this.model({ ...data });
-    return auth.save();
+  async createPost(data: CreatePostInput) {
+    const post = new this.model({ ...data });
+    return post.save();
   }
 
-  async deleteAuth(_id: string) {
-    const auth = await this.model.findById(_id);
-    if (!auth) throw new GraphQLError("auth not found");
+  async createManyPost(datas: CreatePostInput[]) {
+    const posts = datas.map((input: CreatePostInput) => this.createPost(input));
+    return posts;
+  }
+
+  async updatePost(data: UpdatePostInput) {
+    const post = await this.model.findById(data._id);
+    if (!post) throw new GraphQLError("post not found");
+
+    for (const field in omit(data, "_id")) set(post, field, get(data, field));
+
+    return post.save();
+  }
+
+  async updateManyPost(datas: UpdatePostInput[]) {
+    const posts = datas.map((input: UpdatePostInput) => this.updatePost(input));
+    return posts;
+  }
+
+  async deletePost(_id: string) {
+    const post = await this.model.findById(_id);
+    if (!post) throw new GraphQLError("post not found");
 
     await this.model.deleteOne({ _id });
-    return auth;
+    return post;
+  }
+
+  async deleteManyPost(args: MutationDeleteManyPostArgs) {
+    const posts = await this.model.find(args.filter);
+    if (isEmpty(posts)) throw new GraphQLError("posts not found");
+
+    await this.model.deleteMany({ _id: { $in: map(posts, "_id") } });
+    return posts;
   }
 }

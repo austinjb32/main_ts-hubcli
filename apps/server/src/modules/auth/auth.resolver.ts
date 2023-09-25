@@ -14,19 +14,11 @@ export default {
   Mutation: {
     createAuth: (parent, args, context, info) =>
       context.dataSources.authDataSource.createAuth(args.data),
-    createManyAuth: (parent, args, context, info) =>
-      context.dataSources.authDataSource.createManyAuth(args.datas),
-    updateAuth: (parent, args, context, info) =>
-      context.dataSources.authDataSource.updateAuth(args.data),
-    updateManyAuth: (parent, args, context, info) =>
-      context.dataSources.authDataSource.updateManyAuth(args.datas),
     deleteAuth: (parent, args, context, info) =>
       context.dataSources.authDataSource.deleteAuth(String(args._id)),
-    deleteManyAuth: (parent, args, context, info) =>
-      context.dataSources.authDataSource.deleteManyAuth(args),
   },
   Auth: {
     __resolveReference: async (ref, context, info) =>
-      ref._id ? context.loaders.authByIdLoader.load(ref._id) : null,
+      ref._id ? context.loaders.authLoader.load(ref._id) : null,
   },
 } as Resolvers;

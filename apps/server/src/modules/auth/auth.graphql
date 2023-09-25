@@ -41,31 +41,7 @@ extend type Mutation {
   createAuth(data: CreateAuthInput!): Auth!
     @isMHAdmin
     @cachePurge(payloads: [{ types: ["getAuth", "getAllAuths"] }])
-  createManyAuth(datas: [CreateAuthInput!]!): [Auth!]!
-    @isMHAdmin
-    @cachePurge(payloads: [{ types: ["getAuth", "getAllAuths"] }])
-  updateAuth(data: UpdateAuthInput!): Auth!
-    @isMHAdmin
-    @cachePurge(
-      payloads: [
-        { types: ["getAuth", "getAllAuths", "getAuthById"], identifier: "_id" }
-      ]
-    )
-  updateManyAuth(datas: [UpdateAuthInput!]!): [Auth!]!
-    @isMHAdmin
-    @cachePurge(
-      payloads: [
-        { types: ["getAuth", "getAllAuths", "getAuthById"], identifier: "_id" }
-      ]
-    )
   deleteAuth(_id: ID!): Auth!
-    @isMHAdmin
-    @cachePurge(
-      payloads: [
-        { types: ["getAuth", "getAllAuths", "getAuthById"], identifier: "_id" }
-      ]
-    )
-  deleteManyAuth(filter: JSON!): [Auth!]!
     @isMHAdmin
     @cachePurge(
       payloads: [

@@ -1,7 +1,9 @@
 import { CacheContext } from "@hubspire/cache-directive";
 import { GraphQLSchema } from "graphql";
-import HelloDataSource from "../../modules/hello/hello.datasource";
 import { getLoaders } from "../config";
+import UserDataSource from "../../modules/user/user.datasource";
+import AuthDataSource from "../../modules/auth/auth.datasource";
+import PostDataSource from "../../modules/post/post.datasource";
 export * from "./generated/base-types";
 
 export interface ServerContext {
@@ -13,7 +15,9 @@ export interface ServerContext {
 }
 
 export type TDataSourceContext = {
-  helloDataSource: HelloDataSource;
+  userDataSource: UserDataSource;
+  authDataSource: AuthDataSource;
+  postDataSource: PostDataSource;
 };
 
 export type TModule = {
