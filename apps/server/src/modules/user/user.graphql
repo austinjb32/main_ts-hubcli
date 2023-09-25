@@ -18,7 +18,8 @@ type User @key(fields: "_id") {
 input CreateUserInput {
   name: String!
   email: String!
-  password: String
+  password: String!
+  confirmPassword:String!
   bio: String
   status: String
   imageUrl: String

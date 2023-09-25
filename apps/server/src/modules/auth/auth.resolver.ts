@@ -4,12 +4,10 @@ export default {
   Query: {
     getAuthById: (parent, args, context, info) =>
       context.dataSources.authDataSource.getAuthById(String(args._id)),
-    getAllAuth: (parent, args, context, info) =>
-      context.dataSources.authDataSource.getAllAuth(args),
     getOneAuth: (parent, args, context, info) =>
       context.dataSources.authDataSource.getOneAuth(args),
-    getAllAuthCount: (parent, args, context, info) =>
-      context.dataSources.authDataSource.getAllAuthCount(args),
+    userLogin: (parent, args, context, info) =>
+      context.dataSources.authDataSource.userLogin(args, context),
   },
   Mutation: {
     createAuth: (parent, args, context, info) =>

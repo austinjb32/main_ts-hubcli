@@ -48,14 +48,14 @@ import { Modules } from "./modules";
         : ApolloServerPluginLandingPageLocalDefault({ embed: true }),
     ],
     introspection: process.env.APOLLO_INTROSPECTION === "true",
-    formatError: (error) => {
-      return {
-        ...error,
-        extensions: {
-          ...omit(get(error, "extensions"), "stacktrace"),
-        },
-      };
-    },
+    // formatError: (error) => {
+    //   return {
+    //     ...error,
+    //     extensions: {
+    //       ...omit(get(error, "extensions"), "stacktrace"),
+    //     },
+    //   };
+    // },
   });
 
   // const cache = await CacheService.start({
@@ -81,7 +81,7 @@ import { Modules } from "./modules";
           : payload.req?.headers?.authorization?.split(" ")[1] || null;
 
         return {
-          accessToken: payload.req?.headers?.authorization?.split(" ")[1],
+          accessToken: payload.req?.headers?.authorization,
           isMHAdmin,
           dataSources: Modules.dataSources,
           // cacheContext: {

@@ -1,4 +1,6 @@
-import { Resolvers } from "../../libs/types";
+import { Post, Resolvers, ServerContext } from "../../libs/types";
+import PostDataSource from "../post/post.datasource";
+import { PostModel } from "../post/post.model";
 
 export default {
   Query: {
@@ -26,7 +28,13 @@ export default {
       context.dataSources.userDataSource.deleteManyUser(args),
   },
   User: {
-    __resolveReference: async (ref, context, info) =>
-      ref._id ? context.loaders.userLoader.load(ref._id) : null,
+    __resolveReference: async (ref, context, info) => {
+      return ref._id ? context.loaders.userLoader.load(ref._id) : null;
+    },
+    Posts: async (parent, context, info) => {
+      console.log("post");
+      const post = await PostModel.find({ creator: parent._id });
+      return post;
+    },
   },
 } as Resolvers;

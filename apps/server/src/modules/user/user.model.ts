@@ -1,5 +1,4 @@
 import { Document, Model, Schema, model, Types } from "mongoose";
-import isEmail from "validator/es/lib/isEmail";
 type IUser = {
   name: string;
   email: string;
@@ -27,7 +26,6 @@ const UserSchema = new Schema<IUserDocument, IUserModel>(
       required: true,
       unique: true,
       index: true,
-      validate: isEmail,
     },
     password: {
       type: String,

@@ -11,6 +11,7 @@ import {
   UpdateUserInput,
 } from "../../libs/types";
 import { UserModel } from "./user.model";
+import { userCreationValidation } from "../../libs/validation/validation";
 
 export default class UserDataSource {
   private readonly model = UserModel;
@@ -75,6 +76,8 @@ export default class UserDataSource {
   }
 
   async createUser(data: CreateUserInput) {
+    const createUserValidation = userCreationValidation(data);
+    if (createUserValidation.error) throw new GraphQLError("Validation failed");
     const user = new this.model({ ...data });
     return user.save();
   }

@@ -1,7 +1,7 @@
 import { getSearchRegex, parseQuery } from "@hubspire/cache-directive";
 import { GraphQLError } from "graphql";
 import { get, omit, set, size, map, isEmpty } from "lodash";
-import { PipelineStage } from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import {
   CreatePostInput,
   QueryGetAllPostArgs,
@@ -9,8 +9,13 @@ import {
   MutationDeleteManyPostArgs,
   QueryGetAllPostCountArgs,
   UpdatePostInput,
+  ServerContext,
 } from "../../libs/types";
 import { PostModel } from "./post.model";
+import {
+  postCreationValidation,
+  postUpdationValidation,
+} from "../../libs/validation/validation";
 
 export default class PostDataSource {
   private readonly model = PostModel;
@@ -23,9 +28,9 @@ export default class PostDataSource {
     if (size(args.search?.trim()) > 2) {
       pipelines.push({
         $search: {
-          index: "search-index-name",
+          index: "searchPosts",
           regex: {
-            path: ["field-name"],
+            path: ["title"],
             query: getSearchRegex(args.search?.trim() || ""),
             allowAnalyzedField: true,
           },
@@ -49,9 +54,9 @@ export default class PostDataSource {
     if (size(args.search?.trim()) > 2) {
       pipelines.push({
         $search: {
-          index: "search-index-name",
+          index: "searchPosts",
           regex: {
-            path: ["field-name"],
+            path: ["title"],
             query: getSearchRegex(args.search?.trim() || ""),
             allowAnalyzedField: true,
           },
@@ -74,17 +79,24 @@ export default class PostDataSource {
     return this.model.findOne(args.filter).sort(args.sort).lean();
   }
 
-  async createPost(data: CreatePostInput) {
+  async createPost(data: CreatePostInput, context: ServerContext) {
+    const createPostValidation = postCreationValidation(data);
+    if (createPostValidation.error) throw new GraphQLError("Validation failed");
     const post = new this.model({ ...data });
+    post.creator = context.userId!;
     return post.save();
   }
 
-  async createManyPost(datas: CreatePostInput[]) {
-    const posts = datas.map((input: CreatePostInput) => this.createPost(input));
+  async createManyPost(datas: CreatePostInput[], context: ServerContext) {
+    const posts = datas.map((input: CreatePostInput) =>
+      this.createPost(input, context)
+    );
     return posts;
   }
 
   async updatePost(data: UpdatePostInput) {
+    const updatePostValidation = postUpdationValidation(data);
+    if (updatePostValidation.error) throw new GraphQLError("Validation failed");
     const post = await this.model.findById(data._id);
     if (!post) throw new GraphQLError("post not found");
 

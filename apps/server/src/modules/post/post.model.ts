@@ -40,4 +40,4 @@ const PostSchema = new Schema<IPostDocument, IPostModel>(
   }
 );
 
-export const PostModel = model<IPostDocument, IPostModel>("posts", PostSchema);
+export const PostModel = model<IPostDocument, IPostModel>("Post", PostSchema);

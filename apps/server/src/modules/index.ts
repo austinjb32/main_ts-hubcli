@@ -13,17 +13,28 @@ import { TModule } from "../libs/types";
 import AuthDataSource from "./auth/auth.datasource";
 import UserDataSource from "./user/user.datasource";
 import PostDataSource from "./post/post.datasource";
+import {
+  userComposedResolvers,
+  postComposedResolvers,
+} from ".././libs/resolverComposition/resolverComposition";
+import authResolvers from "./auth/auth.resolver";
 
 const typeDefs = mergeTypeDefs(
   loadFilesSync(path.resolve(__dirname + "/**/*.graphql"), {
     extensions: ["graphql"],
   })
 );
-const resolvers = mergeResolvers(
-  loadFilesSync(path.resolve(__dirname + "/**/*.resolver.{ts,js}"), {
-    extensions: ["ts", "js"],
-  })
-);
+// const resolvers = mergeResolvers(
+//   loadFilesSync(path.resolve(__dirname + "/**/*.resolver.{ts,js}"), {
+//     extensions: ["ts", "js"],
+//   })
+// );
+
+const finalMergedResolvers = mergeResolvers([
+  userComposedResolvers,
+  postComposedResolvers,
+  authResolvers,
+]);
 
 export const Modules: TModule = {
   dataSources: {
@@ -36,7 +47,7 @@ export const Modules: TModule = {
       buildSubgraphSchema({
         typeDefs: typeDefs,
         resolvers: {
-          ...resolvers,
+          ...finalMergedResolvers,
           ...{ JSON: GraphQLJSON },
           ...{ DateTime: GraphQLDateTime },
           ...{ EmailAddress: GraphQLEmailAddress },

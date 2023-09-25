@@ -2,39 +2,33 @@ type Auth @key(fields: "_id") {
   _id: ID!
   createdAt: DateTime
   updatedAt: DateTime
-  token: String
+  accessToken: String
   refreshToken: String
-  userId: String
+  userId: ID!
 }
 
 input CreateAuthInput {
-  token: String!
+  accessToken: String!
   refreshToken: String!
-  userId: String!
+  userId: ID!
 }
 
 input UpdateAuthInput {
   _id: ID!
-  token: String
+  accessToken: String
   refreshToken: String
-  userId: String
+  userId: ID
 }
 
 extend type Query {
   getAuthById(_id: ID!): Auth
     @isMHAdmin
     @cacheSet(type: "getAuthById", identifier: "_id")
-  getAllAuth(
-    search: String
-    filter: JSON
-    sort: JSON
-    limit: Int
-    offset: Int
-  ): [Auth]! @isMHAdmin @cacheSet(type: "getAllAuths", identifier: "_id")
   getOneAuth(filter: JSON, sort: JSON): Auth
     @isMHAdmin
     @cacheSet(type: "getAuth", identifier: "_id")
   getAllAuthCount(search: String, filter: JSON): Int! @isMHAdmin
+  userLogin(email:String!, password:String!): Auth! @cacheSet(type: "getAuth", identifier: "_id")
 }
 
 extend type Mutation {

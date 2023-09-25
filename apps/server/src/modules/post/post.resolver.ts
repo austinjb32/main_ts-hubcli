@@ -13,9 +13,9 @@ export default {
   },
   Mutation: {
     createPost: (parent, args, context, info) =>
-      context.dataSources.postDataSource.createPost(args.data),
+      context.dataSources.postDataSource.createPost(args.data, context),
     createManyPost: (parent, args, context, info) =>
-      context.dataSources.postDataSource.createManyPost(args.datas),
+      context.dataSources.postDataSource.createManyPost(args.datas, context),
     updatePost: (parent, args, context, info) =>
       context.dataSources.postDataSource.updatePost(args.data),
     updateManyPost: (parent, args, context, info) =>

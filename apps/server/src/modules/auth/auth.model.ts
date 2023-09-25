@@ -1,9 +1,9 @@
-import { Document, Model, Schema, model, Types } from "mongoose";
+import mongoose, { Document, Model, Schema, model, Types } from "mongoose";
 
 type IAuth = {
-  token: string;
+  accessToken: string;
   refreshToken: string;
-  userId: string;
+  userId: Types.ObjectId;
 } & Record<"createdAt" | "updatedAt", Readonly<Date>>;
 
 export interface IAuthDocument extends IAuth, Document {}
@@ -12,20 +12,18 @@ export interface IAuthModel extends Model<IAuthDocument> {}
 
 const AuthSchema = new Schema<IAuthDocument, IAuthModel>(
   {
-    token: {
+    accessToken: {
       type: String,
       required: true,
-      unique: true,
     },
     refreshToken: {
       type: String,
       required: true,
-      unique: true,
     },
     userId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
-      unique: false,
+      ref: "users",
     },
   },
   {

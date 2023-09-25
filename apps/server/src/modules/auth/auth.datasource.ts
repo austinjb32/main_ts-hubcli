@@ -1,67 +1,74 @@
 import { getSearchRegex, parseQuery } from "@hubspire/cache-directive";
 import { GraphQLError } from "graphql";
 import { get, omit, set, size, map, isEmpty } from "lodash";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { PipelineStage } from "mongoose";
 import {
   CreateAuthInput,
-  QueryGetAllAuthArgs,
   QueryGetOneAuthArgs,
-  QueryGetAllAuthCountArgs,
+  ServerContext,
+  QueryUserLoginArgs,
+  Auth,
 } from "../../libs/types";
 import { AuthModel } from "./auth.model";
+import { UserModel } from "../user/user.model";
+import { loginValidation } from "../../libs/validation/validation";
 
 export default class AuthDataSource {
   private readonly model = AuthModel;
 
-  async getAllAuth(args: QueryGetAllAuthArgs) {
-    const pipelines: PipelineStage[] = [];
-    const limit = Number(args.limit) || 10;
-    const offset = Number(args.offset) || 0;
-
-    if (size(args.search?.trim()) > 2) {
-      pipelines.push({
-        $search: {
-          index: "search-index-name",
-          regex: {
-            path: ["field-name"],
-            query: getSearchRegex(args.search?.trim() || ""),
-            allowAnalyzedField: true,
-          },
-        },
-      });
+  async userLogin(args: QueryUserLoginArgs, context: ServerContext) {
+    const user = await UserModel.findOne({ email: args.email }).exec();
+    if (!user) {
+      const error = new Error("No User Found");
+      throw error;
     }
-    pipelines.push({
-      $match: parseQuery(args.filter),
-    });
-    size(args.search?.trim()) <= 2 &&
-      pipelines.push({ $sort: args.sort || { createdAt: -1 } });
-    pipelines.push({ $skip: offset });
-    pipelines.push({ $limit: limit });
 
-    return this.model.aggregate(pipelines);
-  }
+    const validLogin = loginValidation(args);
 
-  async getAllAuthCount(args: QueryGetAllAuthCountArgs) {
-    const pipelines: PipelineStage[] = [];
-
-    if (size(args.search?.trim()) > 2) {
-      pipelines.push({
-        $search: {
-          index: "search-index-name",
-          regex: {
-            path: ["field-name"],
-            query: getSearchRegex(args.search?.trim() || ""),
-            allowAnalyzedField: true,
-          },
-        },
-      });
+    if (validLogin.error) {
+      throw new Error(`${validLogin.error.name}${validLogin.error.message}`);
     }
-    pipelines.push({
-      $match: parseQuery(args.filter),
-    });
-    pipelines.push({ $count: "totalCount" });
 
-    return (await this.model.aggregate(pipelines))[0]?.totalCount || 0;
+    const hashedPassword = bcrypt.compareSync(args.password, user.password);
+    if (!hashedPassword) {
+      throw new Error("Wrong Password");
+    }
+
+    //////////////////{User Token}/////////////////////
+
+    const token = jwt.sign(
+      {
+        email: user.email,
+        userId: user._id.toString(),
+      },
+      "somesupersecretsecret",
+      { expiresIn: "1h" }
+    );
+
+    context.accessToken = token;
+    //////////////////{Refresh Token}/////////////////////
+    const refreshToken = jwt.sign(
+      {
+        email: user.email,
+        userId: user._id.toString(),
+      },
+      "somesupersecretsecret",
+      { expiresIn: "30d" }
+    );
+    context.refreshToken = refreshToken;
+    context.userId = user._id;
+
+    const authData = new AuthModel({
+      accessToken: token,
+      refreshToken: refreshToken,
+      userId: user._id,
+    });
+
+    await authData.save();
+
+    return authData;
   }
 
   async getAuthById(_id: string) {

@@ -28,9 +28,9 @@ export type Scalars = {
 export type Auth = {
   __typename?: 'Auth';
   _id: FieldWrapper<Scalars['ID']['output']>;
+  accessToken?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   createdAt?: Maybe<FieldWrapper<Scalars['DateTime']['output']>>;
   refreshToken?: Maybe<FieldWrapper<Scalars['String']['output']>>;
-  token?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   updatedAt?: Maybe<FieldWrapper<Scalars['DateTime']['output']>>;
   userId?: Maybe<FieldWrapper<Scalars['String']['output']>>;
 };
@@ -41,8 +41,8 @@ export type CachePurgeInput = {
 };
 
 export type CreateAuthInput = {
+  accessToken: Scalars['String']['input'];
   refreshToken: Scalars['String']['input'];
-  token: Scalars['String']['input'];
   userId: Scalars['String']['input'];
 };
 
@@ -169,7 +169,6 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
-  getAllAuth: Array<Maybe<FieldWrapper<Auth>>>;
   getAllAuthCount: FieldWrapper<Scalars['Int']['output']>;
   getAllPost: Array<Maybe<FieldWrapper<Post>>>;
   getAllPostCount: FieldWrapper<Scalars['Int']['output']>;
@@ -181,15 +180,7 @@ export type Query = {
   getOneUser?: Maybe<FieldWrapper<User>>;
   getPostById?: Maybe<FieldWrapper<Post>>;
   getUserById?: Maybe<FieldWrapper<User>>;
-};
-
-
-export type QueryGetAllAuthArgs = {
-  filter?: InputMaybe<Scalars['JSON']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  search?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['JSON']['input']>;
+  userLogin: FieldWrapper<Auth>;
 };
 
 
@@ -261,10 +252,16 @@ export type QueryGetUserByIdArgs = {
   _id: Scalars['ID']['input'];
 };
 
+
+export type QueryUserLoginArgs = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
 export type UpdateAuthInput = {
   _id: Scalars['ID']['input'];
+  accessToken?: InputMaybe<Scalars['String']['input']>;
   refreshToken?: InputMaybe<Scalars['String']['input']>;
-  token?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -290,12 +287,16 @@ export type UpdateUserInput = {
 
 export type User = {
   __typename?: 'User';
+  Posts?: Maybe<Array<Maybe<FieldWrapper<Post>>>>;
   _id: FieldWrapper<Scalars['ID']['output']>;
   bio?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   createdAt?: Maybe<FieldWrapper<Scalars['DateTime']['output']>>;
   email?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  followers?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
+  following?: Maybe<FieldWrapper<Scalars['Int']['output']>>;
   imageUrl?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   isAdmin?: Maybe<FieldWrapper<Scalars['Boolean']['output']>>;
+  lastActivity?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   name?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   password?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   status?: Maybe<FieldWrapper<Scalars['String']['output']>>;
@@ -454,9 +455,9 @@ export type IsMhAdminDirectiveResolver<Result, Parent, ContextType = ServerConte
 export type AuthResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Auth'] = ResolversParentTypes['Auth']> = ResolversObject<{
   __resolveReference?: ReferenceResolver<Maybe<ResolversTypes['Auth']>, { __typename: 'Auth' } & GraphQLRecursivePick<UnwrappedObject<ParentType>, {"_id":true}>, ContextType>;
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  accessToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   refreshToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  token?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   userId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -508,7 +509,6 @@ export type PostResolvers<ContextType = ServerContext, ParentType extends Resolv
 }>;
 
 export type QueryResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  getAllAuth?: Resolver<Array<Maybe<ResolversTypes['Auth']>>, ParentType, ContextType, Partial<QueryGetAllAuthArgs>>;
   getAllAuthCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<QueryGetAllAuthCountArgs>>;
   getAllPost?: Resolver<Array<Maybe<ResolversTypes['Post']>>, ParentType, ContextType, Partial<QueryGetAllPostArgs>>;
   getAllPostCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType, Partial<QueryGetAllPostCountArgs>>;
@@ -520,16 +520,21 @@ export type QueryResolvers<ContextType = ServerContext, ParentType extends Resol
   getOneUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryGetOneUserArgs>>;
   getPostById?: Resolver<Maybe<ResolversTypes['Post']>, ParentType, ContextType, RequireFields<QueryGetPostByIdArgs, '_id'>>;
   getUserById?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryGetUserByIdArgs, '_id'>>;
+  userLogin?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<QueryUserLoginArgs, 'email' | 'password'>>;
 }>;
 
 export type UserResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
   __resolveReference?: ReferenceResolver<Maybe<ResolversTypes['User']>, { __typename: 'User' } & GraphQLRecursivePick<UnwrappedObject<ParentType>, {"_id":true}>, ContextType>;
+  Posts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Post']>>>, ParentType, ContextType>;
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   bio?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  followers?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  following?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   imageUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   isAdmin?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  lastActivity?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   password?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

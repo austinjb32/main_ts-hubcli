@@ -6,7 +6,7 @@ type Post @key(fields: "_id") {
   content: String
   imageUrl: String
   creator: ID
-    isLiked: Boolean
+  isLiked: Boolean
   shareCount: Int
   likesCount: Int
   commentCount: Int
@@ -16,7 +16,6 @@ input CreatePostInput {
   title: String!
   content: String!
   imageUrl: String
-  creator: ID!
   isLiked: Boolean
 }
 
@@ -25,7 +24,6 @@ input UpdatePostInput {
   title: String
   content: String
   imageUrl: String
-  creator: ID
   isLiked: Boolean
 }
 
