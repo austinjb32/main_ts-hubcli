@@ -13,10 +13,9 @@ import cors from "cors";
 import express from "express";
 import expressWinston from "express-winston";
 import http from "http";
-import { get, omit } from "lodash";
 import mongoose from "mongoose";
 import winston from "winston";
-import { ServiceVerify } from "./libs/auth/token-verify";
+import { AuthVerify, ServiceVerify } from "./libs/auth/token-verify";
 import { getLoaders } from "./libs/config";
 import { ServerContext } from "./libs/types";
 import { Modules } from "./modules";
@@ -46,6 +45,7 @@ import { Modules } from "./modules";
             footer: false,
           })
         : ApolloServerPluginLandingPageLocalDefault({ embed: true }),
+      responseCachePlugin<ServerContext>(),
     ],
     introspection: process.env.APOLLO_INTROSPECTION === "true",
     // formatError: (error) => {
@@ -58,11 +58,11 @@ import { Modules } from "./modules";
     // },
   });
 
-  // const cache = await CacheService.start({
-  //   cache_prefix: "Server",
-  //   redis_host: String(process.env.REDIS_HOST),
-  //   redis_port: Number(process.env.REDIS_PORT),
-  // });
+  const cache = await CacheService.start({
+    cache_prefix: "Server",
+    redis_host: String(process.env.REDIS_HOST),
+    redis_port: Number(process.env.REDIS_PORT),
+  });
   await mongoose.connect(String(process.env.DB_URL), {});
   await server.start();
 
@@ -76,6 +76,7 @@ import { Modules } from "./modules";
     expressMiddleware(server, {
       context: async (payload) => {
         const isMHAdmin = ServiceVerify(payload.req);
+        const isAuth = AuthVerify(payload.req);
         const sessionId = isMHAdmin
           ? (payload.req?.headers?.["mh-token"] as string)
           : payload.req?.headers?.authorization?.split(" ")[1] || null;
@@ -83,11 +84,12 @@ import { Modules } from "./modules";
         return {
           accessToken: payload.req?.headers?.authorization,
           isMHAdmin,
+          isAuth,
           dataSources: Modules.dataSources,
-          // cacheContext: {
-          //   cache,
-          //   sessionId,
-          // },
+          cacheContext: {
+            cache,
+            sessionId,
+          },
           loaders: getLoaders(),
         };
       },

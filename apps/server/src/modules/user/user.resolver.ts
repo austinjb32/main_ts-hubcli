@@ -1,5 +1,4 @@
-import { Post, Resolvers, ServerContext } from "../../libs/types";
-import PostDataSource from "../post/post.datasource";
+import { Resolvers } from "../../libs/types";
 import { PostModel } from "../post/post.model";
 
 export default {

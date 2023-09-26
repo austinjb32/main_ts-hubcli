@@ -1,16 +1,16 @@
 import { TestDB } from "../../__test__/test-db";
 import TestApolloServer from "../../__test__/test-server";
 import {
-  createUserOperation,
   createManyUserOperation,
-  deleteUserOperation,
+  createUserOperation,
   deleteManyUserOperation,
+  deleteUserOperation,
   getAllUserCountOperation,
   getAllUserOperation,
-  getUserByIdOperation,
   getOneUserOperation,
-  updateUserOperation,
+  getUserByIdOperation,
   updateManyUserOperation,
+  updateUserOperation,
 } from "./__test__/operations";
 import { rawUserData, seedUser } from "./__test__/seed";
 
@@ -46,7 +46,7 @@ describe("User Module", () => {
   });
 
   it("Positive - MUTATION: CREATE USER", async () => {
-    await createUserOperation(
+    return await createUserOperation(
       {
         name: "49GpxfBlCN",
         email: "AaL6B8tADw",
@@ -55,6 +55,7 @@ describe("User Module", () => {
         status: "e7CheATczd",
         imageUrl: "RfDSSb1n2y",
         isAdmin: true,
+        confirmPassword: "xkHrlN1cIQ",
       },
       server
     );
@@ -67,6 +68,7 @@ describe("User Module", () => {
           name: "Ujxg7cm7ss",
           email: "P3IbDnVXhU",
           password: "KI0YIoo7nq",
+          confirmPassword: "KI0YIoo7nq",
           bio: "fE4VyxDeTf",
           status: "mJKmbt2fhq",
           imageUrl: "7xUYZ1ap9p",
@@ -76,6 +78,7 @@ describe("User Module", () => {
           name: "mEucCcstyE",
           email: "LL1gjqGuzg",
           password: "DGY6je2zRB",
+          confirmPassword: "DGY6je2zRB",
           bio: "GCkS3qXmsT",
           status: "r6udAJy5Bq",
           imageUrl: "jLkjNRe8eg",

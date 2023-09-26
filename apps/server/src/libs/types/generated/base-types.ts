@@ -32,7 +32,7 @@ export type Auth = {
   createdAt?: Maybe<FieldWrapper<Scalars['DateTime']['output']>>;
   refreshToken?: Maybe<FieldWrapper<Scalars['String']['output']>>;
   updatedAt?: Maybe<FieldWrapper<Scalars['DateTime']['output']>>;
-  userId?: Maybe<FieldWrapper<Scalars['String']['output']>>;
+  userId: FieldWrapper<Scalars['ID']['output']>;
 };
 
 export type CachePurgeInput = {
@@ -43,12 +43,11 @@ export type CachePurgeInput = {
 export type CreateAuthInput = {
   accessToken: Scalars['String']['input'];
   refreshToken: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 export type CreatePostInput = {
   content: Scalars['String']['input'];
-  creator: Scalars['ID']['input'];
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   isLiked?: InputMaybe<Scalars['Boolean']['input']>;
   title: Scalars['String']['input'];
@@ -56,11 +55,12 @@ export type CreatePostInput = {
 
 export type CreateUserInput = {
   bio?: InputMaybe<Scalars['String']['input']>;
+  confirmPassword: Scalars['String']['input'];
   email: Scalars['String']['input'];
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
-  password?: InputMaybe<Scalars['String']['input']>;
+  password: Scalars['String']['input'];
   status?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -262,13 +262,12 @@ export type UpdateAuthInput = {
   _id: Scalars['ID']['input'];
   accessToken?: InputMaybe<Scalars['String']['input']>;
   refreshToken?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type UpdatePostInput = {
   _id: Scalars['ID']['input'];
   content?: InputMaybe<Scalars['String']['input']>;
-  creator?: InputMaybe<Scalars['ID']['input']>;
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   isLiked?: InputMaybe<Scalars['Boolean']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -448,9 +447,17 @@ export type CacheSetDirectiveArgs = {
 
 export type CacheSetDirectiveResolver<Result, Parent, ContextType = ServerContext, Args = CacheSetDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
+export type IsAuthDirectiveArgs = { };
+
+export type IsAuthDirectiveResolver<Result, Parent, ContextType = ServerContext, Args = IsAuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
 export type IsMhAdminDirectiveArgs = { };
 
 export type IsMhAdminDirectiveResolver<Result, Parent, ContextType = ServerContext, Args = IsMhAdminDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
+export type UpperDirectiveArgs = { };
+
+export type UpperDirectiveResolver<Result, Parent, ContextType = ServerContext, Args = UpperDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type AuthResolvers<ContextType = ServerContext, ParentType extends ResolversParentTypes['Auth'] = ResolversParentTypes['Auth']> = ResolversObject<{
   __resolveReference?: ReferenceResolver<Maybe<ResolversTypes['Auth']>, { __typename: 'Auth' } & GraphQLRecursivePick<UnwrappedObject<ParentType>, {"_id":true}>, ContextType>;
@@ -459,7 +466,7 @@ export type AuthResolvers<ContextType = ServerContext, ParentType extends Resolv
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   refreshToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
-  userId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -556,5 +563,7 @@ export type Resolvers<ContextType = ServerContext> = ResolversObject<{
 export type DirectiveResolvers<ContextType = ServerContext> = ResolversObject<{
   cachePurge?: CachePurgeDirectiveResolver<any, any, ContextType>;
   cacheSet?: CacheSetDirectiveResolver<any, any, ContextType>;
+  isAuth?: IsAuthDirectiveResolver<any, any, ContextType>;
   isMHAdmin?: IsMhAdminDirectiveResolver<any, any, ContextType>;
+  upper?: UpperDirectiveResolver<any, any, ContextType>;
 }>;

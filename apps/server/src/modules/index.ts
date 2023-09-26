@@ -8,16 +8,20 @@ import {
   GraphQLJSON,
 } from "graphql-scalars";
 import path from "path";
-import { authDirectiveTransformer } from "../libs/directives/auth.directive";
+import {
+  postComposedResolvers,
+  userComposedResolvers,
+} from ".././libs/resolverComposition/resolverComposition";
+import {
+  authDirectiveTransformer,
+  checkDirectiveTransformer,
+  mhAdminDirectiveTransformer,
+} from "../libs/directives/auth.directive";
 import { TModule } from "../libs/types";
 import AuthDataSource from "./auth/auth.datasource";
-import UserDataSource from "./user/user.datasource";
-import PostDataSource from "./post/post.datasource";
-import {
-  userComposedResolvers,
-  postComposedResolvers,
-} from ".././libs/resolverComposition/resolverComposition";
 import authResolvers from "./auth/auth.resolver";
+import PostDataSource from "./post/post.datasource";
+import UserDataSource from "./user/user.datasource";
 
 const typeDefs = mergeTypeDefs(
   loadFilesSync(path.resolve(__dirname + "/**/*.graphql"), {
@@ -43,16 +47,20 @@ export const Modules: TModule = {
     postDataSource: new PostDataSource(),
   },
   schemas: cacheDirectiveTransformer(
-    authDirectiveTransformer(
-      buildSubgraphSchema({
-        typeDefs: typeDefs,
-        resolvers: {
-          ...finalMergedResolvers,
-          ...{ JSON: GraphQLJSON },
-          ...{ DateTime: GraphQLDateTime },
-          ...{ EmailAddress: GraphQLEmailAddress },
-        },
-      })
+    mhAdminDirectiveTransformer(
+      checkDirectiveTransformer(
+        authDirectiveTransformer(
+          buildSubgraphSchema({
+            typeDefs: typeDefs,
+            resolvers: {
+              ...finalMergedResolvers,
+              ...{ JSON: GraphQLJSON },
+              ...{ DateTime: GraphQLDateTime },
+              ...{ EmailAddress: GraphQLEmailAddress },
+            },
+          })
+        )
+      )
     )
   ),
 };
